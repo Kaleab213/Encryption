@@ -1,0 +1,185 @@
+class Affine_cryptograpy:
+    def __init__(self,string,key1,key2):
+        self.string=string
+        self.x=key1
+        self.y=key2
+        self.y=key2
+
+
+    dictionary_for_lowercase_latter = {chr(i): i - 97 for i in range(97,97 + 26)}  # this is dictionary for lower case latter like {'a': 0, 'b': 1, 'c': 2, 'd': 3}
+    dictionary_for_uppercase_latter = {chr(i): i - 38 for i in range(65,65 + 26)}  # this is dictionary for upper case latter {'A': 27, 'B': 28, 'C': 29, 'D': 30}
+    reversed_dictionary_for_lowercase_latter = {i - 97: chr(i) for i in range(97,97 + 26)}  # this is the reversed dictionary for lower case latter like {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e'}
+    reversed_dectionary_for_uppercase_latter = {i - 38: chr(i) for i in range(65,65 + 26)}  # this is the reversed dictionary for upper case latter like {27: 'A', 28: 'B', 29: 'C', 30: 'D', 31: 'E'}
+    dictionary_for_regular_expretion = {':': -26, ';': -25, '4': -24, '6': -23, '5': -22, '?': -21, '@': -20, '8': -19,'7': -18, '1': -17, '!': -16, '"': -15, '#': -14, '$': -13, '9': -12, '&': -11,"2": -10, '(': -9, ')': -8, '*': -7, '+': -6, ',': -5, '-': -4, '3': -3,'/': -2, '0': -1}
+    reversed_dictionary_for_regular_expretion = {-26: ':', -25: ';', -24: '4', -23: '6', -22: '5', -21: '?', -20: '@',-19: '8', -18: '7', -17: '1', -16: '!', -15: '"', -14: '#', -13: '$',-12: '9', -11: '&', -10: "2", -9: '(', -8: ')', -7: '*', -6: '+',-5: ',', -4: '-', -3: '3', -2: '/', -1: '0'}
+
+
+    fixed = 26  # number of char
+
+    def GCF(self, x, fixed):  # this function check if the key entered is valied or not
+        a = x
+        b = fixed
+        while b != 0:
+            r = a % b
+            a = b
+            b = r
+        return a
+
+    def invers(self,x, fixed):  # this function used to find the invers of x mod 26
+        if Affine_cryptograpy.GCF(self, x, fixed) == 1:
+            for i in range(1, fixed):
+                if (((self.x % fixed) * (i % fixed)) % fixed == 1):
+                    return i
+        else:
+            return "incorrect key"
+
+
+
+    def text_to_number(self):  # this function used to change the plaintext to corsponding number
+        number_list = []
+        for d in self.string:
+            if d in self.dictionary_for_lowercase_latter:  # if the char is lower case
+                number_list.append(self.dictionary_for_lowercase_latter[d])
+
+            elif d == " ":  # if there is space
+                number_list.append(" ")
+            elif d==".":
+                number_list.append(".")
+            elif d in self.dictionary_for_regular_expretion:
+                number_list.append(self.dictionary_for_regular_expretion[d])
+
+            else:  # if the char is upper case
+                number_list.append(self.dictionary_for_uppercase_latter[d])
+
+        return number_list
+
+
+
+    def encrypt(self,x, y):  # this function encrypt the corresponding number
+
+        number_of_list = Affine_cryptograpy.text_to_number(self)  # list of corresponding number
+        number_of_encripted = []
+        if Affine_cryptograpy.GCF(self, self.x, self.fixed)==1:
+
+            for k in number_of_list:
+                if k != " " and k!=".":
+                    if k < 27 and k>=0:  # if the char is lower case
+                        formula = (self.x * k + self.y) % 26
+                        number_of_encripted.append(formula)
+                    elif k < 0:
+                        k=(-1)*k
+                        formula = (self.x * k + self.y) % 26
+                        formula = (-1) * formula
+                        number_of_encripted.append(formula)
+
+                    else:  # if the char is upper case
+                        formula = ((self.x * (k - 27) + self.y) % 26) + 27
+                        number_of_encripted.append(formula)
+
+                else:
+                    if k == " ":
+                        number_of_encripted.append(" ")
+                    else:
+                        number_of_encripted.append(".")
+
+            return number_of_encripted
+        elif Affine_cryptograpy.GCF(self, self.x, self.fixed)!=1:
+            return "incorrect key"
+
+
+
+    def encrypted_taxt(self):
+
+        latter_list1 = ""  # encrypted string
+        number_of_chatacter = Affine_cryptograpy.encrypt(self,self.x,self.y)
+        latter_list = []  # list of encrypted char
+        if type(number_of_chatacter)==str:
+            print("incorrect keys")
+            return
+        else:
+            for i in number_of_chatacter:
+                if i == " ":
+                    latter_list.append(" ")
+                elif i==".":
+                    latter_list.append(".")
+                elif i < 0:
+                    latter_list.append(self.reversed_dictionary_for_regular_expretion[i])
+                else:
+                    if i < 27 and i>=0:  # if the char is lower case
+                        latter_list.append(self.reversed_dictionary_for_lowercase_latter[i])
+                    else:  # if the char is upper case
+                        latter_list.append(self.reversed_dectionary_for_uppercase_latter[i])
+            for j in range(len(number_of_chatacter)):  # creating the encrypted text
+                latter_list1 += latter_list[j]
+            print(latter_list1)
+
+
+
+    def decrypt(self):  # decrption of the encrypted list of number
+        numbers_of_encrypted = Affine_cryptograpy.text_to_number(self)
+        numbers_of_decrypted = []  # list of decrypt corresponding number
+        invers_value = Affine_cryptograpy.invers(self,self.x,self.fixed)
+        if Affine_cryptograpy.GCF(self, self.x, self.fixed)==1:
+            for h in numbers_of_encrypted:
+                if h == " ":
+                    numbers_of_decrypted.append(" ")
+                elif h==".":
+                    numbers_of_decrypted.append(".")
+                elif h < 0:
+                    h = (-1) * h
+                    formula = ((invers_value * h - invers_value * self.y)) % self.fixed
+                    formula = (-1) * formula
+                    numbers_of_decrypted.append(formula)
+                else:
+                    if h < 27 and h>=0:  # if the char is lower case
+
+                        formula = ((invers_value * h - invers_value * self.y)) % 26
+                        numbers_of_decrypted.append(formula)
+                    else:  # if the char is upper case
+
+                        formula = (((invers_value * (h - 27) - invers_value * self.y)) % 26) + 27
+                        numbers_of_decrypted.append(formula)
+
+            return numbers_of_decrypted
+        else:
+            return "incorrect key"
+
+
+
+    def decripted_taxt(self):
+        letter_list = ""  # the decrypted string
+        number_0f_character = Affine_cryptograpy.decrypt(self)
+        if type(number_0f_character)==str:
+            print("incorrect keys")
+            return
+        else:
+            for i in number_0f_character:
+                if i == " ":
+                    letter_list += " "
+                elif i==".":
+                    letter_list+="."
+                elif i < 0:
+                    letter_list += self.reversed_dictionary_for_regular_expretion[i]
+                else:
+                    if i < 27 and i>=0:  # if the char is lower case
+                        letter_list += self.reversed_dictionary_for_lowercase_latter[i]
+                    else:  # if the char is upper case
+                        letter_list += self.reversed_dectionary_for_uppercase_latter[i]
+            print(letter_list)
+
+
+m,
+
+def crypto():
+    string="Affine cryptograph 2"
+    key1=11
+    key2=3
+    string1="Dggnqv zihmebridmc ("
+    cryptos=Affine_cryptograpy(string,key1,key2)
+    cryptos1=Affine_cryptograpy(string1,key1,key2)
+    cryptos.encrypted_taxt()
+    cryptos1.decripted_taxt()
+
+crypto()
+
+
