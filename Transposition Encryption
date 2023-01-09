@@ -1,0 +1,86 @@
+import numpy as np
+from array import *
+message = input("insert: ")
+
+class Transposition:
+
+	def __init__(self, key):
+		self.key = key
+
+	def encrypt(self, message):
+		#handle exceptional inputs
+		if len(message) < self.key:
+			print("invalid input")
+			return
+		col_num = self.key
+		#create multi-dimensional array
+		array1 = np.array([[str(message[0])]])
+		x = 1
+		#insert the message in to the array
+		for i in range(len(message)):
+			if  i != 0 and message[i] != " ":
+				array1 = np.insert(array1, x, str(message[i]), axis = 1)
+				x+=1
+		#add some random letter at the end to fill out the final block
+		for i in array1:
+			array_length = len(i)
+			for j in range(len(i)):
+				if (array_length%col_num) == 0:
+					break
+				else:
+					array1 = np.insert(array1, x, "x", axis = 1)
+					array_length+=1
+		#determine the row and column number of the table
+		for i in array1:
+			row_num = len(i)//col_num
+		#reshape the array into the table size
+		array1 = array1.reshape(row_num, col_num)
+		#transpose the letters using permutation
+		x = 0
+		while x < row_num:
+			temp1, temp2, temp3, temp4 = array1[x,0],array1[x,1],array1[x,2], array1[x,3]
+			array1[x,0], array1[x,1], array1[x,2], array1[x,3] = temp2, temp4, temp1, temp3
+			x+=1
+		#traverse through the array 
+		for i in array1:
+			for j in i:
+				print(j, end='')
+			print(" ", end='')
+
+	def decrypt(self, message):
+		col_num = self.key
+		#handle exceptional inputs
+		if (len(message) == 0):
+			print("invalid input")
+			return
+		#create multi-dimensional array
+		array1 = np.array([[str(message[0])]])
+		#insert the message in to the array
+		x = 1
+		for i in range(len(message)):
+			if  i != 0 and message[i] != " ":
+				array1 = np.insert(array1, x, str(message[i]), axis = 1)
+				x+=1
+		#handle exceptional inputs
+		for i in array1:
+			if (len(i)%col_num) != 0:
+				print("invalid input")
+				return
+			#determine the row and column number of the table
+			row_num = len(i)//col_num
+		#reshape the array into the table size
+		array1 = array1.reshape(row_num, col_num)
+		#transpose the letters using inverse permutation
+		x = 0
+		while x < row_num:
+			temp1, temp2, temp3, temp4 = array1[x,2],array1[x,0],array1[x,3], array1[x,1]
+			array1[x,0], array1[x,1], array1[x,2], array1[x,3] = temp1, temp2, temp3, temp4
+			x+=1
+		#traverse through the array
+		for i in array1:
+			for j in i:
+				print(j, end='')
+			print(" ", end='')
+		
+transposition = Transposition(4)
+transposition.decrypt(message)
